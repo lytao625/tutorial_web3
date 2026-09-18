@@ -22,13 +22,19 @@ contract FundMe {
     // 定义最小投资金额（USD）
     uint256 constant MINIMUM_VALUE = 100 * 10 ** 18;
 
+    // 记录合约部署时间
+    uint256 public deployTime = block.timestamp;
+    // 记录融资时间(s)
+    uint256 public lockTime;
+
     // ETH:USD价格转换数据源
     AggregatorV3Interface private dataFeed;    
 
     event fundEvent(address indexed inventor, address indexed to, uint256 amount);
 
-    constructor(address dataFeedAddress) {
+    constructor(address dataFeedAddress, uint56 _lockTime) {
         owner = msg.sender;
+        lockTime = _lockTime;
         dataFeed = AggregatorV3Interface(dataFeedAddress);
     }
 
@@ -58,8 +64,38 @@ contract FundMe {
 
     // 融资收款函数
     function fund() external payable{
+        // 要求投资达到最小额度
         require(convertETHtoUSD(msg.value) >= MINIMUM_VALUE, "More eth needed");
+        // 要求在锁定期内投资
+        require(deployTime + lockTime > block.timestamp, "Fund window is closed.");
         fundersToAmount[msg.sender] += msg.value;
         emit fundEvent(msg.sender, address(this), msg.value);
+    }
+
+    // 融资完成提取资金
+    function getFund() external {
+        // 融资额达成，才允许提款
+        require(convertETHtoUSD(address(this).balance) >= TARGET, "Target is not reached.");
+        // 要求锁定期内才可以提款
+        require(deployTime + lockTime > block.timestamp, "Fund window is closed.");
+        // 只允许所有者才能提款
+        require(owner == msg.sender, "This function can only be called by owner.");
+        bool success;
+        (success, ) = payable(msg.sender).call{value: address(this).balance}("");
+        require(success, "Transfer tx failed.");
+        fundersToAmount[msg.sender] = 0;
+    }
+
+    // 未完成融资退款
+    function reFund() external {
+        // 融资额未达成，则退款
+        require(convertETHtoUSD(address(this).balance) < TARGET, "Target is reached.");
+        // 要求锁定期内才可以退款
+        require(deployTime + lockTime > block.timestamp, "Fund window is closed.");
+        require(fundersToAmount[msg.sender] > 0, "There isnot fund for you.");
+        bool success;
+        (success, ) = payable(msg.sender).call{value: fundersToAmount[msg.sender]}("");
+        require(success, "Transfer tx failed.");
+        fundersToAmount[msg.sender] = 0;
     }
 }
