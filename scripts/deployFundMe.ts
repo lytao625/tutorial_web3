@@ -3,7 +3,7 @@ import hre from "hardhat"
 const { ethers } = await hre.network.create();
 
 const SEPOLIA_ETHUSD_DATAFEED = "0x694AA1769357215DE4FAC081bf1f309aDC325306"
-const LOCKTIME = "10"
+const LOCKTIME = "120"
 
 async function main() {
     // create factory 
@@ -23,6 +23,30 @@ async function main() {
             constructorArgs: [SEPOLIA_ETHUSD_DATAFEED, LOCKTIME],
         });
     }
+
+    // get two accounts
+    const [acc1, acc2] = await ethers.getSigners()
+    console.log(`2 accounts address are ${acc1.address} and ${acc2.address}`)
+
+    // fund contract with first account
+    const fundTx1 = await fundme.connect(acc1).fund({value: ethers.parseEther("0.005")})
+    await fundTx1.wait()
+    // get balance of contract after the first account fund
+    const balance1OfContract = await ethers.provider.getBalance(fundme.target)
+    console.log(`Balance of contract is ${balance1OfContract}`)
+
+    // fund contract with second account
+    const fundTx2 = await fundme.connect(acc2).fund({value: ethers.parseEther("0.005")})
+    await fundTx2.wait()
+    // get balance of contract after the second account fund
+    const balance2OfContract = await ethers.provider.getBalance(fundme.target)
+    console.log(`Balance of contract is ${balance2OfContract}`)
+
+    // check mapping 
+    const balance1 = await fundme.fundersToAmount(acc1.address)
+    const balance2 = await fundme.fundersToAmount(acc2.address)
+    console.log(`Balance of the first account: ${balance1}`)
+    console.log(`Balance of the second account: ${balance2}`)
 }
 
 main().then().catch((error) => {

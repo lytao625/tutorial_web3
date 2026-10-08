@@ -18,9 +18,9 @@ contract FundMe {
     address public owner;
 
     // 定义目标融资金额（USD）
-    uint256 constant TARGET = 1000 * 10 ** 18;
+    uint256 constant TARGET = 100 * 10 ** 18;
     // 定义最小投资金额（USD）
-    uint256 constant MINIMUM_VALUE = 100 * 10 ** 18;
+    uint256 constant MINIMUM_VALUE = 10 * 10 ** 18;
 
     // 记录合约部署时间
     uint256 public deployTime = block.timestamp;
