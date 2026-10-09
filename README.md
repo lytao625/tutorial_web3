@@ -1,10 +1,17 @@
-# Sample Hardhat 3 Project (`node:test` and `viem`)
+# FundMe Contract： A Sample Hardhat 3 Project (`node:test` and `viem`)
 
 This project showcases a Hardhat 3 project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
 
 To learn more about Hardhat 3, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3](https://hardhat.org/hardhat3-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
 
 ## Project Overview
+
+This FundMe contract includes:
+
+1. Create a function to receive funds.
+2. Record investors and allow viewing of the investor list.
+3. Allow the entrepreneur to withdraw funds if the target amount is reached within the lock-up period.
+4. Allow investors to claim a refund if the target amount is not reached within the lock-up period.
 
 This example project includes:
 
@@ -32,12 +39,12 @@ npx hardhat test nodejs
 
 ### Make a deployment to Sepolia
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+This project includes an deployment script with hardhat-deploy plugin. You can deploy this module to a locally simulated chain or to Sepolia.
 
 To run the deployment to a local chain:
 
 ```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+npx hardhat deploy
 ```
 
 To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
@@ -53,5 +60,5 @@ npx hardhat keystore set SEPOLIA_PRIVATE_KEY
 After setting the variable, you can run the deployment with the Sepolia network:
 
 ```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
+npx hardhat deploy --network sepolia
 ```
