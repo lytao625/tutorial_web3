@@ -1,9 +1,8 @@
 import hre from "hardhat"
 
-const { ethers } = await hre.network.create();
+import {LOCKTIME, SEPOLIA_ETHUSD_DATAFEED} from "../hardhat.config.user.js";
 
-const SEPOLIA_ETHUSD_DATAFEED = "0x694AA1769357215DE4FAC081bf1f309aDC325306"
-const LOCKTIME = "120"
+const { ethers } = await hre.network.create();
 
 async function main() {
     // create factory 
@@ -20,7 +19,7 @@ async function main() {
         console.log("verifying on etherscan ...");
         await hre.tasks.getTask("verify").run({
             address: fundme.target,
-            constructorArgs: [SEPOLIA_ETHUSD_DATAFEED, LOCKTIME],
+            constructorArgs: [SEPOLIA_ETHUSD_DATAFEED, String(LOCKTIME)],
         });
     }
 

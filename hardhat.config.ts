@@ -1,11 +1,13 @@
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
 import hardhatEthers from "@nomicfoundation/hardhat-ethers"
 import { configVariable, defineConfig } from "hardhat/config";
+import HardhatDeploy from 'hardhat-deploy';
 
 export default defineConfig({
   plugins: [
     hardhatToolboxViemPlugin,
-    hardhatEthers
+    hardhatEthers,
+    HardhatDeploy
   ],
   solidity: {
     profiles: {
@@ -43,5 +45,13 @@ export default defineConfig({
     etherscan: {
       apiKey: configVariable("ETHERSCAN_API_KEY"),
     },
-  }
+  },
+  // Since we use typescript we also set hardhat-deploy to generate them in typescript
+	generateTypedArtifacts: {
+		destinations: [
+			{
+				mode: 'typescript',
+			},
+		],
+	},
 });
