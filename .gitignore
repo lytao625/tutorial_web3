@@ -38,3 +38,4 @@
 
 # generate ts files
 /generated
+/deployments
