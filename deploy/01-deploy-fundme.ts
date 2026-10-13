@@ -8,7 +8,7 @@ export default deployScript(
     async (env) => {
         const {deployer} = env.namedAccounts;
 
-        console.log(`Deploying FundMe on chain: ${env.network.chain.name}, with account: ${deployer}`)
+        console.log(`Deploying FundMe on chain: ${env.network.chain.name}`)
 
         let datafeedAddr: string;
         if (env.network.chain.id == 11155111) {

@@ -9,7 +9,7 @@ export default deployScript(
         if (env.network.chain.id == 11155111) {
             console.log(`Deploying MockV3Aggregator on chain: ${env.network.chain.name}, skiping deployment`)
         } else {
-            console.log(`Deploying MockV3Aggregator on chain: ${env.network.chain.name}, with account: ${deployer}`)
+            console.log(`Deploying MockV3Aggregator on chain: ${env.network.chain.name}`)
             await env.deploy('MockV3Aggregator', {
                 artifact: artifacts.MockV3Aggregator,
                 account: deployer,
