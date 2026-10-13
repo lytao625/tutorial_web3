@@ -8,7 +8,7 @@ export default deployScript(
     async (env) => {
         const {deployer} = env.namedAccounts;
 
-        console.log(`Deploying on chain: ${env.network.chain.name}, with account: ${deployer}`)
+        console.log(`Deploying FundMe on chain: ${env.network.chain.name}, with account: ${deployer}`)
 
         let datafeedAddr: string;
         if (env.network.chain.id == 11155111) {
@@ -25,7 +25,7 @@ export default deployScript(
             waitComfirmation: (env.network.chain.id == 11155111)?5:0,
         });
 
-        console.log(`contract address: ${env.get('FundMe').address}`)
+        console.log(`FundMe contract address: ${env.get('FundMe').address}`)
 
         if (env.network.chain.id == 11155111) {
             console.log("Verifying on etherscan ...");
@@ -38,7 +38,7 @@ export default deployScript(
         }
     },
     {
-        tags: ['FundMe'],
+        tags: ['FundMe', 'all'],
         dependencies: ['MockV3Aggregator']
     },
 );

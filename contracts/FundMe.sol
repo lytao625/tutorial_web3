@@ -5,7 +5,7 @@ pragma solidity ^0.8.34;
 ** 1. 创建一个融资收款函数
 ** 2. 记录投资人并查看
 ** 3. 在锁定期内，到达目标值，创业者可以提款
-** 4. 在锁定期内，未到达目标值，投资人在锁定期内退款
+** 4. 在锁定期内，未到达目标值，投资人在锁定期后可退款
 */
 
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
@@ -28,9 +28,10 @@ contract FundMe {
     uint256 public lockTime;
 
     // ETH:USD价格转换数据源
-    AggregatorV3Interface private dataFeed;    
+    AggregatorV3Interface public dataFeed; // change private to public for unit test
 
     event fundEvent(address indexed inventor, address indexed to, uint256 amount);
+    event getFundEvent(address indexed ownerAddr, uint256 value);
 
     constructor(address dataFeedAddress, uint56 _lockTime) {
         owner = msg.sender;
@@ -73,29 +74,32 @@ contract FundMe {
     }
 
     // 融资完成提取资金
-    function getFund() external {
+    function getFund() external windowClosed {
         // 融资额达成，才允许提款
         require(convertETHtoUSD(address(this).balance) >= TARGET, "Target is not reached.");
-        // 要求锁定期内才可以提款
-        require(deployTime + lockTime > block.timestamp, "Fund window is closed.");
         // 只允许所有者才能提款
         require(owner == msg.sender, "This function can only be called by owner.");
         bool success;
+        uint256 balance = address(this).balance;
         (success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success, "Transfer tx failed.");
         fundersToAmount[msg.sender] = 0;
+        emit getFundEvent(msg.sender, balance);
     }
 
     // 未完成融资退款
-    function reFund() external {
+    function reFund() external windowClosed {
         // 融资额未达成，则退款
         require(convertETHtoUSD(address(this).balance) < TARGET, "Target is reached.");
-        // 要求锁定期内才可以退款
-        require(deployTime + lockTime > block.timestamp, "Fund window is closed.");
         require(fundersToAmount[msg.sender] > 0, "There isnot fund for you.");
         bool success;
         (success, ) = payable(msg.sender).call{value: fundersToAmount[msg.sender]}("");
         require(success, "Transfer tx failed.");
         fundersToAmount[msg.sender] = 0;
+    }
+
+    modifier windowClosed {
+        require(deployTime + lockTime <= block.timestamp, "Window is not closed.");
+        _;
     }
 }
