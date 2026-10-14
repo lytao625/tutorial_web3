@@ -22,19 +22,18 @@ export default deployScript(
             artifact: artifacts.FundMe,
             account: deployer,
             args: [datafeedAddr, LOCKTIME],
-            waitComfirmation: (env.network.chain.id == 11155111)?5:0,
         });
 
         console.log(`FundMe contract address: ${env.get('FundMe').address}`)
 
-        if (env.network.chain.id == 11155111) {
+        if (env.name == 'sepolia') {
             console.log("Verifying on etherscan ...");
             await hre.tasks.getTask("verify").run({
                 address: env.get('FundMe').address,
                 constructorArgs: [SEPOLIA_ETHUSD_DATAFEED, String(LOCKTIME)],
             });
         } else {
-            console.log("network isnot Sepolia, verification skipped")
+            console.log(`env is ${env.name}, verification skipped`)
         }
     },
     {

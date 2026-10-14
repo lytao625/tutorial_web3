@@ -7,7 +7,6 @@ import { Abi_FundMe } from "../../generated/abis/FundMe.js";
 import type { Abi_MockV3Aggregator } from "../../generated/abis/MockV3Aggregator.js";
 import { SEPOLIA_ETHUSD_DATAFEED } from "../../hardhat.config.user.js";
 import { LOCKTIME } from "../../hardhat.config.user.js";
-import type { webcrypto } from "crypto";
 
 function setupFixtures(provider: EthereumProvider) {
     return {
@@ -33,7 +32,11 @@ function setupFixtures(provider: EthereumProvider) {
 const { viem, ethers, provider, networkHelpers } = await network.create();
 const { deployAll } = setupFixtures(provider);
 
-describe("test fundme contract", async function() {
+const { chainId } = await ethers.provider.getNetwork();
+
+(chainId === 11155111n)
+?describe.skip()
+:describe("test fundme contract", async function() {
     let env: any;
     let fundMe: any;
     let mockV3Aggregator: any;
@@ -61,11 +64,7 @@ describe("test fundme contract", async function() {
 
     it("test if the datafeed value is assigned correctly", async function() {
         const datafeed = await env.read(fundMe, {functionName: "dataFeed"});
-        if (env.network.chain.id == 11155111) {
-            assert.equal(datafeed, SEPOLIA_ETHUSD_DATAFEED);
-        } else {
-            assert.equal(datafeed.toLowerCase(), mockV3Aggregator.address.toLowerCase());
-        } 
+        assert.equal(datafeed.toLowerCase(), mockV3Aggregator.address.toLowerCase());
     })
 
     // unit test for fund function
